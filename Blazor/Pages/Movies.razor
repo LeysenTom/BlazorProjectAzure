@@ -1,0 +1,111 @@
+﻿@page "/movies"
+
+@inject HttpClient Http
+@using Blazor.Models
+@using System.Text.Json
+
+<h3>Movies</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Films zoeken (OMDB API)</h1>
+            <form  class="form-inline" @onsubmit="PerformSearch">
+                <div class="form-group m-2">
+                    <label for="zoekterm">Zoekterm</label>
+                    <input type="text"
+                           class="form-control mx-2"
+                           @bind="searchTerm"/>
+                </div>
+                <button type="submit" class="btn btn-primary m-2" >
+                    Zoeken
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row m-2">
+        <div class="col-md-12">
+            <div class="row p-2">
+                <div class="alert @messageClass">@message</div>
+            </div>
+            <div class="row p-3">
+                <div class="row">
+                    @if (movies != null)
+                    {
+                        @foreach (var movie in movies)
+                        {
+                            <div class="col-md-4 col-sm-6">
+                                <div class="card mb-3 shadow-sm">
+                                    <img src="@movie.Poster" class="img-responsive" />
+                                    <div class="card-body">
+                                        <p class="card-text">@movie.Title</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">@movie.Year</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    private string searchTerm;
+    private Movie[]? movies;
+    private string message;
+    private string messageClass;
+
+    private void ShowMessage(string msg, string msgClass)
+    {
+        message = msg;
+        messageClass = $"alert-{msgClass}";
+    }
+
+    private async Task PerformSearch()
+    {
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            ShowMessage("De zoekterm mag niet leeg zijn.", "danger");
+            return;
+        }
+        movies = await FetchMovies(searchTerm.Replace(" ", "%20"));
+        if (movies != null)
+        {
+            ShowMessage($"Aantal gevonden: {movies.Length}", "success");
+        }
+        else
+        {
+            ShowMessage("Er is een fout opgetreden tijdens het zoeken naar films.", "danger");
+        }
+    }
+
+    protected async Task<Movie[]> FetchMovies(string search)
+    {
+        try
+        {
+            var response = await Http.GetAsync("https://www.omdbapi.com/?t=" + search + "&apikey=ab973e63&type=movie");
+
+            if(response.IsSuccessStatusCode)
+            {
+                movies = await Http.GetFromJsonAsync<Movie[]>("https://www.omdbapi.com/?t=" + search + "&apikey=ab973e63&type=movie");
+                return movies;
+            }
+            else
+            {
+                ShowMessage($"Error: {response.ReasonPhrase}", "danger");
+            }
+        }
+        catch (Exception ex )
+        {
+            ShowMessage("error fetching json data" + ex.Message, "danger");
+        }
+
+        return null;
+    }
+
+    
+}

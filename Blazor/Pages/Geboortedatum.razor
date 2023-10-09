@@ -1,0 +1,44 @@
+﻿@page "/geboortedatum"
+
+@inject ILocalStorageService _localstorage;
+
+
+
+<h3>geboortedatum</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div class="row">
+                <div class="col-auto mb-3">
+                    <label for="geboortedatum">Je geboortedatum</label>
+                    <input type="date" id="geboortedatum" @bind="GeboorteDatum" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto mb-3">
+                    <a href="/funfacts"><button class="btn btn-primary btn-lg mb-2" @onclick="StoreAndGo">Check FunFacts</button></a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@code {
+    private DateTime GeboorteDatum = DateTime.Now.Date;
+
+    // Calculate the maximum date
+    private string maxDatum => DateTime.Now.Date.ToString("yyyy-MM-dd");
+
+    private void StoreAndGo()
+    {
+        // Store the birthdate in local storage
+        _localstorage.SetItemAsync("gbdate", GeboorteDatum.ToString("yyyy-MM-dd"));
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var date = await _localstorage.GetItemAsStringAsync("gbdate");
+    }
+
+}
