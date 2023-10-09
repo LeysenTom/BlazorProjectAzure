@@ -1,0 +1,52 @@
+﻿@page "/randomFoto"
+
+<h3>RandomFoto</h3>
+
+<div class="row">
+            <div class="col">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        Random foto
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="@currentImage">
+                        <br>
+                        <button0 class="btn btn-primary mt-2" @onclick="ChangeRandomPhoto" >Random foto</button0>
+                        <div>@log</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+@code {
+    private string[] arrImg = { "breakfast.jpg", "flower.jpg", "flower_red.jpg", "fontain.jpg", "lunch.jpg", "sunset.jpg" };
+    private int lBound = 0;
+    private int hBound;
+    private string log = "";
+    private Random random = new Random();
+    private string currentImage;
+    private int currentNumber;
+
+    protected override void OnInitialized()
+    {
+        hBound = arrImg.Length - 1;
+        currentNumber = random.Next(lBound, hBound);
+        currentImage = "images/" + arrImg[random.Next(lBound, hBound + 1)];
+    }
+    private void ChangeRandomPhoto(){
+        int randomNumber;
+        log = "Geklikt op nieuwe random (Vorige waarde = " + currentNumber + ") <br>";
+
+        do
+        {
+            randomNumber = random.Next(lBound, hBound);
+            log += randomNumber + "<br>";
+        } while (randomNumber == currentNumber);
+        currentNumber = randomNumber;
+
+        currentImage = "images/" + arrImg[randomNumber];
+    }
+}

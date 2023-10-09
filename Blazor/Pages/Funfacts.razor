@@ -1,0 +1,54 @@
+﻿@page "/funfacts"
+
+@inject ILocalStorageService _localstorage;
+
+
+<h3>Funfacts</h3>
+
+<div class="row">
+    <div class="col-md-12">
+        @foreach(var r in result){
+            <p>
+                @r.ToString();
+            </p>
+        }
+
+        <button class="btn btn-primary btn-lg  mb-2">Opnieuw</button>
+    </div>
+</div>
+
+@code {
+    private List<string> result = new List<string>();
+
+
+    protected override void OnInitialized()
+    {
+        CalculateFunFacts();
+    }
+
+    private async void CalculateFunFacts()
+    {
+        //var geboortedatum = "26-09-1990 00:00:00";
+        DateTime geboortedatum = await _localstorage.GetItemAsync<DateTime>("gbdate");
+        // Retrieve the birthdate from local storage
+        var nu = DateTime.Now;
+        await _localstorage.RemoveItemAsync("gbdate");
+
+        var gbdag = geboortedatum.ToString();
+        result.Add( $"Je bent geboren op {gbdag} {geboortedatum.ToString()}");
+
+        result.Add( $"Vandaag is het {nu.ToString()}");
+
+        // Calculate the number of days lived
+        var diffInDays = (nu - geboortedatum).TotalDays;
+        result.Add( $"Je loopt al {Math.Round(diffInDays)} dagen op deze wereldbol rond.");
+
+        // Calculate the estimated date of death
+        const double gemJaren = 80.3; // average life expectancy in years
+
+        var totDagen = 365 * gemJaren;
+        var nogTeLevenDagen = Math.Round(totDagen - diffInDays) * 24 * 3600 * 1000;
+        var teLeven = nu.AddMilliseconds(nogTeLevenDagen);
+        result.Add( $"Je zal vermoedelijk sterven op {teLeven.ToString("d", new System.Globalization.CultureInfo("nl-BE"))}");
+    }
+}
