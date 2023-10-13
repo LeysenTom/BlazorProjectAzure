@@ -1,7 +1,16 @@
 {
   "ConnectionStrings": {
     "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=_CHANGE_ME;Trusted_Connection=True;MultipleActiveResultSets=true"
-  }
-
-  "navigationFallback": { "rewrite": "/index.html" }
-}
+  },
+  "routes": [
+     {
+     "route": "/index.html",
+     "rewrite": "/down.html",
+     "statusCode": 307
+    },
+    {
+     "route": "/test/",
+     "rewrite": "/down.html",
+    }
+    
+    ]
